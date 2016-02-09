@@ -5,9 +5,9 @@ rovernet is an end-to-end learning system — by recieving the robot's stereo fi
 
 rovernet's learning-driven navigation framework provides a building block upon which higher-level autonomous functions can safely be layered.
 The CNN/RNN's that comprise the network and it's associated action/state reward functions are implemented in Lua using Torch7.
-A C-library interface is provided for integrating rovernet with low-level sensors and robot control components.  
+A C-library interface is provided for integrating rovernet with low-level sensors and robotic control components.  
 
-A self-contained sandbox holds the Torch/Lua components in a local path for improved management & configuration control.
+A self-contained sandbox holds the Torch/Lua components locally for improved management & configuration control.
 
 
 # Building from Source
@@ -17,7 +17,7 @@ First, to obtain the rovernet sources, clone the repository from github:
 `git clone http://github.org/dusty-nv/rovernet`
 
 Next, configure and build the project.  Prerequisites will automatically be installed and built into the self-contained sandbox environment, including Lua, Torch, and it's dependencies.
-Lua, Torch, and OpenBLAS are placed locally in the build directory specified during configuration.  The sandbox improves packaging and allows managing multiple concurrent branches on a system without dependency conflicts. 
+Lua, Torch, and OpenBLAS are placed in a local build directory specified during configuration.  The sandbox improves packaging and allows managing multiple concurrent branches on a system without dependency conflicts. 
 
 To compile rovernet, run these commands from terminal:
 
