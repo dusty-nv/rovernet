@@ -1,9 +1,11 @@
 # rovernet
 
-rovernet is a package that uses Deep Q-Learning to teach a robot how to drive itself in unstructured environments.
+rovernet is a package that uses deep reinforcement learning to teach self-driving robots from experience how to operate safely in unstructured environments.
+rovernet is an end-to-end learning system -- by recieving the robot's stereo field and directly controlling motor outputs, it's able to intuitively sense and avoid obstacles and obstructions in the environment.
+rovernet's learning-driven navigation framework provides a building block upon which higher-level autonomous functions can safely be layered. 
 The CNN/RNN's that comprise the network and it's associated action/state reward functions are implemented in Lua using Torch7.
 A C-library interface is provided for integrating rovernet with low-level sensors and robot control components.  
-A self-contained sandbox environment holds the Lua/Torch7 components in a local directory for easy management & configuration control.
+A self-contained sandbox holds the Lua/Torch7 components in a local directory for easy management & configuration control.
 
 
 # Building from Source
@@ -12,7 +14,7 @@ First, to obtain the rovernet sources, clone the repository from github:
 
 `git clone http://github.org/dusty-nv/rovernet`
 
-Next, configure and build the project.  Prerequisites will automatically be installed and built into the self-contained sandbox, including Lua, Torch, and it's dependencies.
+Next, configure and build the project.  Prerequisites will automatically be installed and built into the self-contained sandbox environment, including Lua, Torch, and it's dependencies.
 Lua, Torch, and OpenBLAS are placed locally in the build directory specified during configuration.  The sandbox improves packaging and allows managing multiple concurrent branches on a system without dependency conflicts. 
 
 To compile rovernet, run these commands from terminal:
@@ -21,7 +23,8 @@ To compile rovernet, run these commands from terminal:
 > mkdir build
 > cd build
 > cmake ../
-> make```
+> make
+```
 
 
 ## Build Options
