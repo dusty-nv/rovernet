@@ -1,13 +1,15 @@
 # rovernet
 
 rovernet is a package that uses deep reinforcement learning to teach self-driving robots from experience how to operate safely in unstructured environments.
-rovernet is an end-to-end learning system — by recieving the robot's stereo field and directly controlling motor outputs, it's able to intuitively sense and avoid obstacles and obstructions in the environment.
+rovernet is an end-to-end deep learning system — by recieving the robot's stereo field and directly controlling motor outputs, it's able to intuitively sense and avoid obstacles and obstructions in it's environment.
 
 rovernet's learning-driven navigation framework provides a building block upon which higher-level autonomous functions can safely be layered.
 The CNN/RNN's that comprise the network and it's associated action/state reward functions are implemented in Lua using Torch7.
-A C-library interface is provided for integrating rovernet with low-level sensors and robotic control components.  
+A convenient C-library interface is provided for integrating rovernet with low-level sensors and robotic control components.  
 
 A self-contained sandbox holds the Torch/Lua components locally for improved code management & configuration control.
+
+Underneath, rovernet and Torch are optimized for GPU acceleration with CUDA, and are ideal for deploying onboard embedded platforms with NVIDIA's Jetson device.
 
 
 # Building from Source
