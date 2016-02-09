@@ -7,7 +7,8 @@ rovernet's learning-driven navigation framework provides a building block upon w
 
 The CNN/RNN's that comprise the network and it's associated action/state reward functions are implemented in Lua using Torch7.
 A C-library interface is provided for integrating rovernet with low-level sensors and robot control components.  
-A self-contained sandbox holds the Lua/Torch7 components in a local directory for easy management & configuration control.
+
+A self-contained sandbox holds the Torch/Lua components in a local directory for improved management & configuration control.
 
 
 # Building from Source
@@ -21,11 +22,12 @@ Lua, Torch, and OpenBLAS are placed locally in the build directory specified dur
 
 To compile rovernet, run these commands from terminal:
 
-`> cd rovernet`
-`> mkdir build`
-`> cd build`
-`> cmake ../`
-`> make`
+```cd rovernet
+mkdir build
+cd build
+cmake ../
+make
+```
 
 
 ## Build Options
