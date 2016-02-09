@@ -7,7 +7,7 @@ rovernet's learning-driven navigation framework provides a building block upon w
 The CNN/RNN's that comprise the network and it's associated action/state reward functions are implemented in Lua using Torch7.
 A C-library interface is provided for integrating rovernet with low-level sensors and robotic control components.  
 
-A self-contained sandbox holds the Torch/Lua components locally for improved management & configuration control.
+A self-contained sandbox holds the Torch/Lua components locally for improved code management & configuration control.
 
 
 # Building from Source
