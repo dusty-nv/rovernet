@@ -9,7 +9,7 @@ A convenient C-library interface is provided for integrating rovernet with low-l
 
 A self-contained sandbox holds the Torch/Lua components locally for improved code management & configuration control.
 
-Underneath, rovernet and Torch are optimized for GPU acceleration with CUDA, and are ideal for deploying onboard embedded platforms with NVIDIA's Jetson device.
+Underneath, rovernet and Torch are optimized for GPU acceleration with CUDA, and are ideal for deploying onboard mobile embedded platforms using NVIDIA's Jetson device.
 
 
 # Building from Source
