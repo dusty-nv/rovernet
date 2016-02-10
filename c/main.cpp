@@ -6,11 +6,12 @@
 
 #include "rovernet.h"
 #include <sys/stat.h>
-
+#include <TH/THTensor.h>
 
 
 #define SCRIPT_FILENAME "main.lua"
 #define LUA_FUNC_NAME "ex_lua_func"
+
 
 void call_lua( lua_State* L )
 {
@@ -42,6 +43,45 @@ int lua_c_square( lua_State* L )
 	lua_pushnumber(L, d * d );
 	return 1;
 };
+
+
+extern "C" void lua_ffi_msg( const char* msg )
+{
+	printf("lua_ffi_msg(%s)\n", msg);
+}
+
+
+extern "C" bool fillTensor(int rows, int cols, THByteTensor* emptyTensor) 
+{
+    bool result = false;
+    int  tLen   = rows * cols;
+   
+	printf("fillTensor(%i, %i)\n", rows, cols);
+
+    unsigned char* theData = (unsigned char*) malloc(sizeof(unsigned char) * tLen);
+    if(theData) {
+        for(int i = 0; i < tLen; ++i)
+            theData[i] = (unsigned char) i;
+    }
+   
+    THByteStorage* theStorage = THByteStorage_newWithData(theData, tLen);
+   
+    if(theStorage) {
+       
+        long sizedata[2]   = { rows, cols };
+        long stridedata[2] = { cols, 1};
+       
+        THLongStorage* size    = THLongStorage_newWithData(sizedata, 2);
+        THLongStorage* stride  = THLongStorage_newWithData(stridedata, 2);
+       
+        THByteTensor_setStorage(emptyTensor, theStorage, 0LL, size, stride);
+        result = true;
+    }
+
+
+    return result;
+}
+
 
 
 bool init()
