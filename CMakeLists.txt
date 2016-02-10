@@ -38,3 +38,11 @@ else()
 endif()
 
 
+# transfer all LUA scripts to bin directory
+file(GLOB luaScripts lua/*.lua)
+
+foreach(luaScript ${luaScripts})
+message("-- Configuring ${luaScript}")
+configure_file(${luaScript} ${PROJECT_BINARY_DIR} COPYONLY)
+endforeach()
+
