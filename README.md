@@ -1,6 +1,6 @@
 # rovernet
 
-rovernet is a package that uses deep reinforcement learning to teach self-driving robots from experience how to operate safely in unstructured environments.
+rovernet is a package that uses deep reinforcement to learn from experience how to drive safely in unstructured environments.
 rovernet is an end-to-end deep learning system — by recieving the robot's stereo field and directly controlling motor outputs, it's able to intuitively sense and avoid obstacles and obstructions in it's environment.
 
 rovernet's learning-driven navigation framework provides a building block upon which higher-level autonomous functions can safely be layered.

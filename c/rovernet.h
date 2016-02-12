@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 extern "C" 
 { 
 #include <lua.h>
@@ -24,11 +25,14 @@ extern "C"
 class roverNet
 {
 public:
-	roverNet();
+	static roverNet* Create();
 	~roverNet();
 
 private:
+	roverNet();
+	bool Init();
 
+	lua_State* L;		/**< Lua/Torch7 operating environment */
 };
 
 
