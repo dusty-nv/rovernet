@@ -1,13 +1,25 @@
 /*
  * rovernet
+ * test main (not really used)
  */
 
 #ifdef ROVERNET_CONSOLE
 
 #include "rovernet.h"
 #include <sys/stat.h>
+
+
+extern "C" 
+{ 
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+//#include <TH/THTensor.h>
+}
+
 #include <TH/THTensor.h>
 #include <luaT.h>
+
 
 
 extern "C" THByteTensor* nextTensor( int rows, int cols ) 

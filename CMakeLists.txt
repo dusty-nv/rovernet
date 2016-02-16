@@ -22,8 +22,18 @@ if( ${BUILD_DEPS} )
 endif()
 
 
+find_package(CUDA)
+
+# Pass options to NVCC
+set(
+	CUDA_NVCC_FLAGS
+	${CUDA_NVCC_FLAGS};
+	-O3 -gencode arch=compute_53,code=sm_53
+)
+
+
 # build rovernet C/C++ interface
-include_directories(${PROJECT_BINARY_DIR}/torch/include)
+include_directories(${PROJECT_BINARY_DIR}/torch/include ${PROJECT_BINARY_DIR}/torch/include/TH)
 link_directories(${PROJECT_BINARY_DIR}/torch/lib)
 
 file(GLOB rovernetSources c/*.cpp)
@@ -32,15 +42,15 @@ file(GLOB rovernetIncludes c/*.h)
 if(ROVERNET_CONSOLE)
 	message("Building rovernet utility, defining -DROVERNET_CONSOLE")
 	add_definitions(-DROVERNET_CONSOLE)
-	add_executable(rovernet-console ${rovernetSources})
-	target_link_libraries(rovernet-console luajit luaT TH)
+	cuda_add_executable(rovernet-console ${rovernetSources})
+	target_link_libraries(rovernet-console luajit luaT TH THC)
 endif()
 
 if(ROVERNET_LIBRARY)
 	message("Building librovernet, defining -DROVERNET_LIB")
 	add_definitions(-DROVERNET_LIB)
-	add_library(rovernet ${rovernetSources})
-	target_link_libraries(rovernet luajit luaT TH)
+	cuda_add_library(rovernet SHARED ${rovernetSources})
+	target_link_libraries(rovernet luajit luaT TH THC)
 endif()
 
 
