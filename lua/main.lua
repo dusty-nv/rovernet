@@ -1,5 +1,5 @@
---
--- 
+-- example test script
+-- (do not use)
 
 require 'torch'
 local ffi = require 'ffi'

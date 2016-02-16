@@ -83,6 +83,7 @@ $TORCH_PREFIX/bin/luarocks install image
 $TORCH_PREFIX/bin/luarocks install env
 $TORCH_PREFIX/bin/luarocks install qtlua
 $TORCH_PREFIX/bin/luarocks install qttorch
+$TORCH_PREFIX/bin/luarocks install rnn
 $TORCH_PREFIX/bin/luarocks install trepl
 
 echo ""
