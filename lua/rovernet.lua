@@ -27,9 +27,6 @@ rovernet = nn:Sequential()
 	rovernet:add(nn.Linear(100, 9))
 	rovernet:cuda()
 
---historyLength = 100
---outputHistory = Torch.CudaTensor(9, historyLength)
-
 criterion = nn.MSECriterion()
 criterion:cuda()
 
@@ -37,10 +34,6 @@ criterion:cuda()
 -- run the next iteration of the network (called from C main loop)
 --
 function update_network( img_tensor )
-
-	-- torch nn docs
-	-- manual training example
-	-- we create data on the fly and feed it to the neural network
 
 	print('[rovernet]  user_epoch(' .. os.clock() .. ')')
 
@@ -63,24 +56,20 @@ function update_network( img_tensor )
 	--y = torch.FloatTensor(9); y:copy(x:narrow(1,1,9))	-- y = ideal motor states
 
 	print('criterion:forward')
-	criterion:forward(rovernet:forward(img_tensor), y)
+	output_states = rovernet:forward(img_tensor)
+	criterion:forward(output_states, y)
 
 	print('zeroGradParameters')
 	rovernet:zeroGradParameters()
-	--cutorch.synchronize()
 
-	print('criterion: backward')
 	--output2 = rovernet.output:float()
-
-	print(rovernet.output)
+	print(rovernet.output)					-- rovernet.out = output_states
 	print(y)
 
-	c = criterion:backward(rovernet.output, y)
-	--c = criterion:backward(output2, y2)
-
+	print('criterion: backward')
+	c = criterion:backward(rovernet.output, y)	
 
 	print('rovernet:backward')
-
 	rovernet:backward(img_tensor, c)
 
 	print('rovernet:updateParameters')
