@@ -95,7 +95,7 @@ roverNet::Tensor* roverNet::AllocTensor( uint32_t width, uint32_t height, uint32
 	}
 
 
-#if 1
+#if 0
 	// set memory to default sequential pattern for debugging
 	for( size_t n=0; n < elem; n++ )
 		t->cpuPtr[n] = float(n);
@@ -112,7 +112,7 @@ roverNet::Tensor* roverNet::AllocTensor( uint32_t width, uint32_t height, uint32
 	}
 
 	long sizedata[2]   = { height, width };		// BUG:  should be reversed?
-	long stridedata[2] = { width, 1 };
+	long stridedata[2] = { width, 1 };	// with YUV, { width, 3 }
        
 	THLongStorage* sizeStorage   = THLongStorage_newWithData(sizedata, 2);
 	THLongStorage* strideStorage = THLongStorage_newWithData(stridedata, 2);

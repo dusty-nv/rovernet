@@ -36,8 +36,8 @@ set(
 include_directories(${PROJECT_BINARY_DIR}/torch/include ${PROJECT_BINARY_DIR}/torch/include/TH)
 link_directories(${PROJECT_BINARY_DIR}/torch/lib)
 
-file(GLOB rovernetSources c/*.cpp)
-file(GLOB rovernetIncludes c/*.h)
+file(GLOB rovernetSources c/*.cpp cuda/*.cu)
+file(GLOB rovernetIncludes c/*.h cuda/*.h)
 
 if(ROVERNET_CONSOLE)
 	message("Building rovernet utility, defining -DROVERNET_CONSOLE")
