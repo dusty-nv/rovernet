@@ -59,7 +59,7 @@ public:
 	/**
 	 * Run the next iteration of the network.
 	 */
-	bool updateNetwork( Tensor* image, Tensor* reward, Tensor* output );
+	bool updateNetwork( Tensor* input, Tensor* goal, Tensor* output );
 
 	/**
 	 * Run the next iteration of the network.
