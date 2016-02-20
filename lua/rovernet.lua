@@ -22,17 +22,22 @@ inputSize = 2
 hiddenSize = 300
 learningRate = .00001
 
+
+--Model Squashes for (0,1). Backwards motion 
+--not supported at this time.
 --First Network
 r1 = nn.Sequential()
   r1:add(nn.Linear(inputSize, hiddenSize))
   r1:add(nn.Tanh())
   r1:add(nn.Linear(hiddenSize, outputSize))
+  r1:add(nn.SoftMax())
   
 --Second Network
 r2 = nn.Sequential()
   r2:add(nn.Linear(inputSize, hiddenSize))
   r2:add(nn.Tanh())
   r2:add(nn.Linear(hiddenSize, outputSize))
+  r2:add(nn.SoftMax())
   
 criterion = nn.MSECriterion()
 
@@ -54,7 +59,7 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	bearing = imu_tensor[1][1]
 	goal    = goal_tensor[1][1]
 	print( 'bearing:  ' .. bearing  )
-  	print( 'goal: hey     ' .. goal)
+  print( 'goal: hey     ' .. goal)
   
 	--TO DUSTIN: Manage tensors for input here
 	inputs[1] = bearing
@@ -68,11 +73,6 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	print('motor2:  ' .. output2[1])
 
 	print(output_tensor)
-
-	sumSq=math.sqrt((output1[1]*output1[1]+output2[1]*output2[1]))
-
-	output_tensor[1][1] = output1[1]/sumSq
-	output_tensor[1][2] = output2[1]/sumSq
 
 	
 	print('output tensor')
