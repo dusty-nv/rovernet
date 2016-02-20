@@ -20,7 +20,7 @@ torch.setdefaulttensortype('torch.FloatTensor')
 outputSize = 1
 inputSize = 2
 hiddenSize = 300
-learningRate = .0001
+learningRate = .00001
 
 --First Network
 r1 = nn.Sequential()
@@ -54,11 +54,12 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	bearing = imu_tensor[1][1]
 	goal    = goal_tensor[1][1]
 	print( 'bearing:  ' .. bearing  )
-  	print( 'goal:     ' .. goal)
+  	print( 'goal: hey     ' .. goal)
   
 	--TO DUSTIN: Manage tensors for input here
 	inputs[1] = bearing
 	inputs[2] = goal
+	
 
 	output1 = r1:forward(inputs)
 	output2 = r2:forward(inputs)
@@ -66,9 +67,15 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	print('motor1:  ' .. output1[1])
 	print('motor2:  ' .. output2[1])
 
-	output_tensor[1] = output1[1]
-	output_tensor[2] = output2[1]
+	print(output_tensor)
 
+	sumSq=math.sqrt((output1[1]*output1[1]+output2[1]*output2[1]))
+
+	output_tensor[1][1] = output1[1]/sumSq
+	output_tensor[1][2] = output2[1]/sumSq
+
+	
+	print('output tensor')
 	r1:zeroGradParameters()
 	r2:zeroGradParameters()
 
@@ -77,11 +84,13 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	--the targets as the ideal solution to the other and utilize learning rate to slow down the solution to prevent oscillations
 	target1[1] = minDiff(goal, bearing)-output2[1]  --target1 = minDiff(goal_tensor, imu_tensor)-output2
 	target2[1] = minDiff(goal, bearing)-output1[1]  --target2 = minDiff(goal_tensor, imu_tensor)-output1
-
+	
+	print('gradout 1 breakpoint')
 	--Online target calculation and backpropagation
 	gradOutputs = criterion:backward(output1, target1)
 	gradInputs = r1:backward(inputs, gradOutputs)
-
+	
+	print(gradOutputs)
 	r1:updateParameters(learningRate)
 
 	gradOutputs = criterion:backward(output2, target2)
@@ -99,3 +108,5 @@ function minDiff( target, current)
     return (math.abs(current-target)) 
   end
 end
+
+
