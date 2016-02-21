@@ -90,3 +90,20 @@ $TORCH_PREFIX/bin/luarocks install trepl
 echo ""
 echo "[Pre-build]  Torch7 has been installed successfully"
 echo ""
+
+echo "" 
+echo "[Pre-build] Install iTorch dependencies"
+echo ""
+
+sudo apt-get install python-dev libzmq3-dev libssl-dev python-zmq
+git clone https://github.com/facebook/iTorch.git
+cd iTorch
+luarocks make
+cd ..
+
+echo ""
+echo "[Pre-build] iTorch has installed successfully"
+echo ""
+
+
+

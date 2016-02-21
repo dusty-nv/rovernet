@@ -23,6 +23,8 @@ inputSize = 2
 hiddenSize = 300
 learningRate = .00001
 
+--dummy variable
+PWideal = 3
 
 --Model Squashes for (0,1). Backwards motion 
 --not supported at this time.
