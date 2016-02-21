@@ -5,6 +5,7 @@ require 'cutorch'
 require 'nn'
 require 'cunn'
 require 'image'
+require 'math'
 
 
 --
@@ -53,13 +54,15 @@ print(r2)
 
 --
 -- run the next iteration of the network (called from C main loop)
---TO DUSTIN: input tensors need to be [0,360] to function properly
+-- Note:overrides C set goal tensor
 function update_network( imu_tensor, goal_tensor, output_tensor )
+  
+  goal_tensor[1][1] = math.random()*360
 
 	bearing = imu_tensor[1][1]
 	goal    = goal_tensor[1][1]
 	print( 'bearing:  ' .. bearing  )
-  print( 'goal: hey     ' .. goal)
+  print( 'goal:     ' .. goal)
   
 	--TO DUSTIN: Manage tensors for input here
 	inputs[1] = bearing
@@ -79,12 +82,16 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
 	r1:zeroGradParameters()
 	r2:zeroGradParameters()
 
-	--Targets are computed by calculating minDiff(goal_tensor)-theta(other). Tensors should be stored as floats and passed back
-	--For all of the fancy networks, this is really just linear regression to find the solution to two equations where we define
-	--the targets as the ideal solution to the other and utilize learning rate to slow down the solution to prevent oscillations
-	target1[1] = minDiff(goal, bearing)-output2[1]  --target1 = minDiff(goal_tensor, imu_tensor)-output2
-	target2[1] = minDiff(goal, bearing)-output1[1]  --target2 = minDiff(goal_tensor, imu_tensor)-output1
-	
+--Here, PWideal represents the time it would take for the rover to turn a full 360 degrees. Needs to 
+--be precalculated ahead of runtime and declared. This avoids the necessity of changing the softmax 
+--to (softmax()-1)*2
+  if (bearing < goal) then
+    target1[1] = 0
+    target2[1] = (bearing - goal) / 360 * PWideal
+  else
+    target1[1] = (bearing - goal) / 360 * PWideal
+    target2[1] = 0
+  
 	print('gradout 1 breakpoint')
 	--Online target calculation and backpropagation
 	gradOutputs = criterion:backward(output1, target1)
@@ -100,13 +107,3 @@ function update_network( imu_tensor, goal_tensor, output_tensor )
   
   --and iterate by sending a new goal_tensor to the function. It should be capable of generalizing.
 end
-
-function minDiff( target, current)
-  if math.abs(target-current) < math.abs(current-target) then
-      return math.abs(target-current) 
-  else 
-    return (math.abs(current-target)) 
-  end
-end
-
-
