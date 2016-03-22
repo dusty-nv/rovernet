@@ -21,7 +21,4 @@ Agent = torch.load(network)
 
 --Check agent
 print(Agent)
-Agent:forward(image)
-
-
-end
+action = Agent:forward(image)
