@@ -226,7 +226,7 @@ bool roverNet::updateNetwork( roverNet::Tensor* input, roverNet::Tensor* goal, r
 	lua_getglobal(L, SCRIPT_FUNC_NAME);
 
 	if( input != NULL )
-		luaT_pushudata(L, (void*)input->cpuTensor, "torch.FloatTensor");
+		luaT_pushudata(L, (void*)input->gpuTensor, "torch.FloatTensor");
 
 	if( goal != NULL )
 		luaT_pushudata(L, (void*)goal->cpuTensor, "torch.FloatTensor");
