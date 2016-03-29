@@ -161,7 +161,7 @@ function Agent:learn()
   self.theta:add(self.deltas)
 end
 
-function Agent:sampleValid()
+function Agent:sampleValidationData()
   local s, a, r, s2, term = self.transitions:sample(self.validSize)
   self.validS = s:clone()
   self.validA = a:clone()
@@ -170,7 +170,7 @@ function Agent:sampleValid()
   self.validTerm = term:clone()
 end
 
-function Agent:computeValid()
+function Agent:computeValidationStatistics()
   local targets, delta, q2Max = self:update{s=self.validS, a = validA, r=self.validR, s2=self.valids2, term = self.validTerm}
   self.vAvg=self.qMax * q2Max:mean()
   self.tdErrAvg = delta:clone():abs():mean()
