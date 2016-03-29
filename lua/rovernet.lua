@@ -72,7 +72,7 @@ while step < maxStep do
 			obs, reward, termianl = env:step(gameActions[actionIndex])
 
 			episodeReward = episodeReward + rewardCounts
-			if reward ~= then
+			if reward ~= 0 then
 				nRewards = nRewards+1
 			end
 
@@ -92,8 +92,9 @@ while step < maxStep do
 			Agent.bestNet = Agent.network:clone()
 		end
 
-		if steps % 500 == 0
+		if steps % 500 == 0 then
 			local network = Agent.theta
 			torch.save('rovernet.t7', network, 'ascii')
 		end
+end
 end
