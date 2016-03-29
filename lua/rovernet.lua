@@ -1,4 +1,4 @@
--- rovernet top-level script
+-- rover top-level script
 
 require 'torch'
 require 'cutorch'
@@ -8,105 +8,59 @@ require 'image'
 
 
 --
--- network init
--- 
-print('[rovernet]  hello from within Torch/Lua environment (time=' .. os.clock() .. ')')
-
-torch.setdefaulttensortype('torch.FloatTensor')
-
---Attempt at a basic control solutions on a rover using neural networks. Utilizes simple
---MLP's to solve the problem. Outputs raw PWM between (-1,1). Inputs are currHeading and targetHeading
---Each network solves a motor (r1=motor1, r2=motor2) and outputs its PWM independently of the other
-outputSize = 1
-inputSize = 2
-hiddenSize = 300
-learningRate = .00001
-
-
---Model Squashes for (0,1). Backwards motion 
---not supported at this time.
---First Network
-r1 = nn.Sequential()
-  r1:add(nn.Linear(inputSize, hiddenSize))
-  r1:add(nn.Tanh())
-  r1:add(nn.Linear(hiddenSize, outputSize))
-  r1:add(nn.SoftMax())
-  
---Second Network
-r2 = nn.Sequential()
-  r2:add(nn.Linear(inputSize, hiddenSize))
-  r2:add(nn.Tanh())
-  r2:add(nn.Linear(hiddenSize, outputSize))
-  r2:add(nn.SoftMax())
-  
-criterion = nn.MSECriterion()
-
-inputs = torch.FloatTensor(2)
-target1 = torch.FloatTensor(1)
-target2 = torch.FloatTensor(1)
-print("Model1: ")
-print(r1)
-
-print("Model2: ")
-print(r2)
-
-
+-- work init
 --
--- run the next iteration of the network (called from C main loop)
---TO DUSTIN: input tensors need to be [0,360] to function properly
-function update_network( imu_tensor, goal_tensor, output_tensor )
+print('[rover]  hello from within Torch/Lua environment (time=' .. os.clock() .. ')')
+torch.setdefaulttensortype('torch.FloatTensor')
+histLen = 4
+width = 256
+height = 256
+nChannels = 1
+hiddenSize = 32
+outputs = 3
+--Really large number
+maxSteps = 500000
 
-	bearing = imu_tensor[1][1]
-	goal    = goal_tensor[1][1]
-	print( 'bearing:  ' .. bearing  )
-  print( 'goal: hey     ' .. goal)
-  
-	--TO DUSTIN: Manage tensors for input here
-	inputs[1] = bearing
-	inputs[2] = goal
-	
+reward_counts = {}
+episode_counts = {}
+v_history = {}
+qmax_history = {}
+td_history = {}
+reward_history = {}
+step = 0
+time_history[1] = 0
 
-	output1 = r1:forward(inputs)
-	output2 = r2:forward(inputs)
+--give preprocessed lidar, reward, and terminal flag
+screen, reward, terminal = rover:getState()
 
-	print('motor1:  ' .. output1[1])
-	print('motor2:  ' .. output2[1])
+
+
+local model = nn.Sequential()
+model:add(nn.View(histLen, height, width))
+model:add(nn.SpatialConvolution(histLen*nChannels, 32, 5, 5, 2, 2, 1, 1))
+model:add(nn.ReLU(true))
+model:add(nn.SpatialConvolution(32,32,4,4,2,2))
+model:add(nn.ReLU(true))
+local convOutputSize = torch.prod(torch.Tensor(model:forward(torch.Tensor(torch.LongStorage({histLen*nChannels, height, width}))):size():totable()))
+model:add(nn.View(convOutputSize))
+
+
+local head = nn.Sequential()
+head:add(nn.Linear(convOutputSize, hiddenSize))
+head:add(nn.ReLU(true))
+head:add(nn.Linear(hiddenSize, outputs))
+
+local headConcat = nn.ConcatTable()
+headConcat:add(head)
+model:add(headConcat)
+
+
+
+
+function update_work( imu_tensor, goal_tensor, output_tensor )
 
 	print(output_tensor)
 
-	
+
 	print('output tensor')
-	r1:zeroGradParameters()
-	r2:zeroGradParameters()
-
-	--Targets are computed by calculating minDiff(goal_tensor)-theta(other). Tensors should be stored as floats and passed back
-	--For all of the fancy networks, this is really just linear regression to find the solution to two equations where we define
-	--the targets as the ideal solution to the other and utilize learning rate to slow down the solution to prevent oscillations
-	target1[1] = minDiff(goal, bearing)-output2[1]  --target1 = minDiff(goal_tensor, imu_tensor)-output2
-	target2[1] = minDiff(goal, bearing)-output1[1]  --target2 = minDiff(goal_tensor, imu_tensor)-output1
-	
-	print('gradout 1 breakpoint')
-	--Online target calculation and backpropagation
-	gradOutputs = criterion:backward(output1, target1)
-	gradInputs = r1:backward(inputs, gradOutputs)
-	
-	print(gradOutputs)
-	r1:updateParameters(learningRate)
-
-	gradOutputs = criterion:backward(output2, target2)
-	gradInputs = r2:backward(inputs, gradOutputs)
-
-	r2:updateParameters(learningRate)
-  
-  --and iterate by sending a new goal_tensor to the function. It should be capable of generalizing.
 end
-
-function minDiff( target, current)
-  if math.abs(target-current) < math.abs(current-target) then
-      return math.abs(target-current) 
-  else 
-    return (math.abs(current-target)) 
-  end
-end
-
-
