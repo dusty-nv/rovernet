@@ -15,7 +15,7 @@
  * Pixels that are 1.0 correspond to areas that are outside the reported range for that angle.
  * @param input array of 360 range samples
  */
-cudaError_t cudaRangeMap2D( float* input, float* output, 
+cudaError_t cudaRangeMap2D( float* input, float* output, float maxRange,
 				            size_t outputPitch, size_t outputWidth, size_t outputHeight );
 
 
