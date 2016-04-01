@@ -46,6 +46,10 @@ function trans:_init(args)
   print('done constructing TransitionTable')
 end
 
+function trans:GetNumActions()
+	return self.numActions
+end
+
 function trans:reset()
   self.numEntries=0
   self.insertIndex=0
@@ -60,7 +64,8 @@ function trans:empty()
 end
 
 function trans:fillBuffer()
-  assert(self.numEntries >= bufferSize)
+  print('trans.numEntries = ' .. self.numEntries .. ' trans.bufferSize = ' .. self.bufferSize)
+  assert(self.numEntries >= self.bufferSize)
   self.bufInd = 1
   local ind
   for bufInd=1,self.bufferSize do
@@ -74,6 +79,8 @@ function trans:fillBuffer()
   self.bufS = self.bufS:float():div(255)
   self.bufS2 = self.bufS2:float():div(255)
 end
+
+
 
 function trans:sampleOne()
   assert(self.numEntries > 1)
@@ -98,10 +105,15 @@ function trans:sampleOne()
   return self:get(index)
 end
 
+
 function trans:sample(batchSize)
     local batchSize = batchSize or 1
     assert(batchSize < self.bufferSize)
 
+	if batchSize == 1 then
+		print('trans:sample( batchSize=1 )')
+	end
+	
     if not self.bufInd or self.bufInd + batchSize - 1 > self.bufferSize then
       self:fillBuffer()
     end
@@ -115,7 +127,9 @@ function trans:sample(batchSize)
         self.bufA, self.bufR, self.bufTerm
 
     return bufS[range], bufA[range], bufR[range], bufS2[range], bufTerm[range]
-  end
+end
+
+
 
 function trans:concatFrames(index, useRecent)
   if useRecent then
@@ -146,14 +160,16 @@ function trans:concatFrames(index, useRecent)
     else
       episodeStart = 1
     end
-
+  end
+  
     --Get new frames
     for i = episodeStart, self.histLen do
       fullstate[i]:copy(s[index+self.histIndicies[i]-1])
     end
 
     return fullstate
-  end
+end
+
 
 function trans:concatActions(index, useRecent)
   local actHist = torch.FloatTensor(self.histLen, self.numActions)
@@ -196,6 +212,7 @@ function trans:concatActions(index, useRecent)
   return actHist
 end
 
+
 function trans:getRecent()
   return self:concatFrames(1, true):float():div(255)
 end
@@ -212,6 +229,9 @@ function trans:add(s, a, r, term)
   assert(a, 'Action cannot be nil')
   assert(r, 'Reward cannot be nil')
 
+  print('trans:add(s, a=' .. a .. ', r, term)')
+  print(s:size())
+
   --increment until full
   if self.numEntries < self.maxSize then
     self.numEntries = self.numEntries + 1
@@ -225,7 +245,16 @@ function trans:add(s, a, r, term)
   end
 
   --Overwrite (s,a,r,t) at insertIndex
+  print('overwriting @ index ' .. self.insertIndex)
+  print('s:size = ')
+  print(s:size())
+  print('self.s:size = ')
+  print(self.s:size())
+  print('self.s[self.insertIndex]:size = ')
+  print(self.s[self.insertIndex]:size())
+  
   self.s[self.insertIndex] = s:clone():float():mul(255)
+  print('done s')
   self.a[self.insertIndex] = a
   self.r[self.insertIndex] = r
   if term then
@@ -233,9 +262,14 @@ function trans:add(s, a, r, term)
   else
     self.t[self.insertIndex] = 0
   end
+  print('done TransitionTable:add')
 end
 
+
+
+
 function trans:addRecentState(s, term)
+	print('trans:addRecentState()')
   local s = s:clone():float():mul(255):byte()
   if #self.recentS == 0 then
     for i=1, self.recentMemSize do
@@ -244,11 +278,11 @@ function trans:addRecentState(s, term)
     end
   end
 
-  table.insert(self.recent_s, s)
+  table.insert(self.recentS, s)
   if term then
-    table.insert(self.recent_t, 1)
+    table.insert(self.recentT, 1)
   else
-    table.insert(self.recent_t, 0)
+    table.insert(self.recentT, 0)
   end
 
   --keep recentmemsize states
@@ -257,6 +291,7 @@ function trans:addRecentState(s, term)
       table.remove(self.recentT, 1)
   end
 end
+
 
 function trans:addRecentAction(a)
   if #self.recentA == 0 then
@@ -272,7 +307,7 @@ function trans:addRecentAction(a)
     table.remove(self.recentA, 1)
   end
 end
-end
+
 
 return trans
 

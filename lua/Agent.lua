@@ -55,7 +55,7 @@ function Agent:_init(opt)
   self.tensor_type = torch.FloatTensor
 
   local transitionArgs = {
-        stateDim = 1, numActions = self.nActions,
+        stateDim = self.width * self.height, numActions = self.nActions,
         histLen = self.histLen, gpu = 0,
         maxSize = self.replayMemory, histType = self.histType,
         histSpacing = self.histSpacing, nonTermProb = self.nonTermProb,
@@ -64,6 +64,11 @@ function Agent:_init(opt)
 
 	local trans = require 'TransitionTable'
     self.transitions = trans(transitionArgs)
+	print('transition table')
+	print(trans)
+	print(self.transitions:GetNumActions())
+	print(self.transitions:size())
+	
     self.numSteps = 0
     self.lastState = nil
     self.lastAction = nil
@@ -76,12 +81,13 @@ function Agent:_init(opt)
     self.theta, self.dTheta = self.network:getParameters()
     self.dTheta:zero()
 
-    self.deltas = self.dw:clone():fill(0)
+    self.deltas = self.dTheta:clone():fill(0)
 
-    self.tmp = self.dw:clone():fill(0)
-    self.g = self.dw:clone():fill(0)
-    self.g2 = self.dw:clone():fill(0)
+    self.tmp = self.dTheta:clone():fill(0)
+    self.g = self.dTheta:clone():fill(0)
+    self.g2 = self.dTheta:clone():fill(0)
 
+	print('done creating Agent')
 end
 
 --[[function Agent:reset(state)
@@ -136,16 +142,25 @@ function Agent:update(args)
 
 function Agent:learn()
   --Perform a minibatch update
-
+	print('Agent:learn()')
+	
   local s, a, r, s2, term = self.transitions:sample(self.minibatchSize)
 
+  print('  calling Agent:update()')
+	
   local targets, delta, q2Max = self:update{s=s, a=a, r=r, s2=s2, term=term, updateQmax=true}
 
+  print('  calling self.dTheta:zero()')
+	
   --Zero grab params
   self.dTheta:zero()
+  
+   print('  calling self.network:backwards()')
   --Compute new gradient
   self.network:backwards(s, targets)
 
+  print('  done self.network:backwards()')
+  
   --Anneal Learning rate
   local t = math.max(0, self.numSteps - self.learnStart)
   self.lr = (self.lrStart - self.lrEnd) * (self.lrEndT - t)/(self.lrEndT + self.lrEnd)
@@ -166,7 +181,7 @@ function Agent:learn()
   self.theta:add(self.deltas)
 end
 
-function Agent:sampleValidationData()
+--[[function Agent:sampleValidationData()
   local s, a, r, s2, term = self.transitions:sample(self.validSize)
   self.validS = s:clone()
   self.validA = a:clone()
@@ -179,7 +194,7 @@ function Agent:computeValidationStatistics()
   local targets, delta, q2Max = self:update{s=self.validS, a = validA, r=self.validR, s2=self.valids2, term = self.validTerm}
   self.vAvg=self.qMax * q2Max:mean()
   self.tdErrAvg = delta:clone():abs():mean()
-end
+end--]]
 
 function Agent:perceive(reward, state, terminal, testing, testingEp)
   local curState
@@ -190,20 +205,26 @@ function Agent:perceive(reward, state, terminal, testing, testingEp)
     reward = math.max(reward, self.minReward)
   end
 
-  self.transitions:addRecentState(state, terminal)
-  local currentFullState = self.transitions:getRecent()
+	print('Transition Table:  ' .. self.transitions:size())
+	self.transitions:addRecentState(state, terminal)
+	local currentFullState = self.transitions:getRecent()
 
   --store transitions
   if self.lastState and not testing then
+	print('self.transitions:add(self.lastState, self.lastAction')
     self.transitions:add(self.lastState, self.lastAction, reward, self.lastTerminal, priority)
   end
 
-  if self.numSteps == self.learnStart + 1 and not testing then
-    self.sampleValid()
-  end
+  --[[if self.numSteps == self.learnStart + 1 and not testing then
+    print('self.sampleValidationData()')
+    self.sampleValidationData()
+  end--]]
 
+  print('getcurState')
   curState = self.transitions:getRecent()
-  curState = curstate:resize(1, unpack(self.inputDims))
+  print('curState')
+  print(curState:size())
+  curState = curState:resize(1, unpack(self.inputDims))
 
   local actionIndex = 1
   if not terminal then
@@ -211,7 +232,9 @@ function Agent:perceive(reward, state, terminal, testing, testingEp)
   end
 
   self.transitions:addRecentAction(actionIndex)
-
+  
+  print('update Q Learner')
+  
   --Update q learner
   if self.numSteps > self.learnStart and not testing and self.numSteps % self.updateFreq == 0 then
     for i = 1, self.nReplay do
@@ -239,6 +262,7 @@ function Agent:perceive(reward, state, terminal, testing, testingEp)
 end
 
 function Agent:eGreedy(state, testingEp)
+   print('Agent:eGreedy()')
   self.ep = testingEp or (self.epEnd +
                           math.max(0, (self.epStart - self.epEnd) * (self.epEndt -
                           math.max(0, self.numSteps - self.learnStart))/self.epEndt))

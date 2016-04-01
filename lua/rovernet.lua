@@ -31,7 +31,7 @@ local episodeReward
 
 
 
-print('Setting up rover')
+print('setting up rovernet')
 
 local agentArgs = {
 	width    = 256,
@@ -43,6 +43,7 @@ local Agent = require 'Agent'
 print(Agent)
 local agent = Agent(agentArgs)
 
+print('done initializing rovernet')
 
 
 function update_network( input_tensor, reward_tensor, output_tensor )
