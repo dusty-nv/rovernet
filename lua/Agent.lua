@@ -1,10 +1,14 @@
 require 'classic'
 
+print('loaded Agent.lua')
+
 local Agent = classic.class('Agent')
 
 function Agent:_init(opt)
+  print('Agent:_init()')
+  
   self.height = opt.height
-  self.width = opt.wiidth
+  self.width = opt.width
   self.nActions = opt.nActions
 
   --Epsion Annealing
@@ -40,13 +44,13 @@ function Agent:_init(opt)
   self.nonTermProb = 1
   self.bufferSize = 206
 
-  self.transitionParams = {}
+  --self.transitionParams = {}
+  print('creating Agent network... ')
   self.network = self:createNetwork()
 
-  print('creating Agent... ' .. self.network)
-  self.network = err
-  self.network = self:network()
-
+  print('created Agent network... ')
+  print(self.network)
+  
   self.network:float()
   self.tensor_type = torch.FloatTensor
 
@@ -58,7 +62,8 @@ function Agent:_init(opt)
         bufferSize = self.bufferSize
     }
 
-    self.transitions = Agent.TransitionTable(transitionArgs)
+	local trans = require 'TransitionTable'
+    self.transitions = trans(transitionArgs)
     self.numSteps = 0
     self.lastState = nil
     self.lastAction = nil
@@ -79,7 +84,7 @@ function Agent:_init(opt)
 
 end
 
-function Agent:reset(state)
+--[[function Agent:reset(state)
   if not state then
     return
   end
@@ -89,7 +94,7 @@ function Agent:reset(state)
   self.dTheta:zero()
   self.numSteps = 0
   print('Reset agent successfully')
-end
+end--]]
 
 function Agent:update(args)
   local s, a, r, s2, term, delta
@@ -202,7 +207,7 @@ function Agent:perceive(reward, state, terminal, testing, testingEp)
 
   local actionIndex = 1
   if not terminal then
-    actionIndex = self.eGreedy(curState, testingEp)
+    actionIndex = self.eGreedy(curState, testingEp)	
   end
 
   self.transitions:addRecentAction(actionIndex)
@@ -238,8 +243,10 @@ function Agent:eGreedy(state, testingEp)
                           math.max(0, (self.epStart - self.epEnd) * (self.epEndt -
                           math.max(0, self.numSteps - self.learnStart))/self.epEndt))
           if torch.uniform() < self.ep then
+			print('eGreedy -- randomizing')
             return torch.random(1, self.nActions)
           else
+			print('eGreedy -- greedy network:forward')
             return self:greedy(state)
           end
 end
@@ -280,13 +287,19 @@ end
 
 function Agent:createNetwork()
   local hiddenSize = 128
-  model:add(nn.View(histLen, height, width))
-  model:add(nn.SpatialConvolution(histLen*nChannels, 32, 5, 5, 2, 2, 1, 1))
+  local model = nn.Sequential()
+  model:add(nn.View(self.histLen, self.height, self.width))
+  model:add(nn.SpatialConvolution(self.histLen*self.nChannels, 32, 5, 5, 2, 2, 1, 1))
   model:add(nn.ReLU(true))
   model:add(nn.SpatialConvolution(32,32,4,4,2,2))
   model:add(nn.ReLU(true))
+  local convOutputSize = torch.prod(torch.Tensor(model:forward(torch.Tensor(torch.LongStorage({self.histLen*self.nChannels, self.height, self.width}))):size():totable()))
+  print('convOutputSize:  ' .. convOutputSize)
   model:add(nn.Linear(convOutputSize, hiddenSize))
   model:add(nn.ReLU(true))
-  model:add(nn.Linear(hiddenSize, nActions))
+  model:add(nn.Linear(hiddenSize, self.nActions))
   return model
 end
+
+return Agent
+

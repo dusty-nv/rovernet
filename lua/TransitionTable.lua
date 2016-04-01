@@ -2,6 +2,9 @@ local class = require 'classic'
 local trans = classic.class('TransitionTable')
 
 function trans:_init(args)
+
+  print('TransitionTable:_init()')
+  
   self.stateDim = args.stateDim
   self.numActions = args.numActions
   self.histLen = args.histLen
@@ -25,7 +28,7 @@ function trans:_init(args)
 
   self.s = torch.ByteTensor(self.maxSize, self.stateDim):fill(0)
   self.a = torch.LongTensor(self.maxSize):fill(0)
-  self.r = torch.zeroes(self.maxSize)
+  self.r = torch.zeros(self.maxSize)
   self.t = torch.ByteTensor(self.maxSize):fill(0)
   self.actionEncodings = torch.eye(self.numActions)
 
@@ -35,11 +38,12 @@ function trans:_init(args)
 
   local sSize = self.stateDim * histLen
   self.bufA = torch.LongTensor(self.bufferSize):fill(0)
-  self.bufR = torch.zeroes(self.bufferSize):fill(0)
-  self.bufTerm = torch.ByteTensor(self.bufferSize, sSsize):fill(0)
+  self.bufR = torch.zeros(self.bufferSize):fill(0)
+  self.bufTerm = torch.ByteTensor(self.bufferSize, sSize):fill(0)
   self.bufS = torch.ByteTensor(self.bufferSize, sSize):fill(0)
   self.bufS2 = torch.ByteTensor(self.bufferSize, sSize):fill(0)
 
+  print('done constructing TransitionTable')
 end
 
 function trans:reset()
@@ -269,3 +273,6 @@ function trans:addRecentAction(a)
   end
 end
 end
+
+return trans
+

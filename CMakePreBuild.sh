@@ -66,6 +66,7 @@ fi
 echo "[Pre-build]  installing luarocks packages"
 
 $TORCH_PREFIX/bin/luarocks install cwrap
+$TORCH_PREFIX/bin/luarocks install classic
 $TORCH_PREFIX/bin/luarocks install paths
 $TORCH_PREFIX/bin/luarocks install torch
 $TORCH_PREFIX/bin/luarocks install nn

@@ -221,19 +221,20 @@ bool roverNet::init()
 
 
 // updateNetwork
-bool roverNet::updateNetwork( roverNet::Tensor* input, roverNet::Tensor* goal, roverNet::Tensor* output )
+bool roverNet::updateNetwork( roverNet::Tensor* input, roverNet::Tensor* reward, roverNet::Tensor* output )
 {
 	lua_getglobal(L, SCRIPT_FUNC_NAME);
 
 	if( input != NULL )
-		luaT_pushudata(L, (void*)input->gpuTensor, "torch.FloatTensor");
-
-	if( goal != NULL )
-		luaT_pushudata(L, (void*)goal->cpuTensor, "torch.FloatTensor");
+		luaT_pushudata(L, (void*)input->cpuTensor, "torch.FloatTensor");
+		//luaT_pushudata(L, (void*)input->gpuTensor, "torch.CudaTensor");
+		
+	if( reward != NULL )
+		luaT_pushudata(L, (void*)reward->cpuTensor, "torch.FloatTensor");
 
 	if( output != NULL )
 		luaT_pushudata(L, (void*)output->cpuTensor, "torch.FloatTensor");
-	//luaT_pushudata(L, (void*)input->gpuTensor, "torch.CudaTensor");
+	
 
 	const int num_params = 3;
 	const int num_result = 0;
