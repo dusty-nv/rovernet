@@ -16,8 +16,8 @@ extern "C"
 #include <THC/THC.h>
 #include "../cuda/cudaMappedMemory.h"
 
-
-#define SCRIPT_FILENAME  "rovernet.lua"
+#define SCRIPT_FILENAME "bearing2.lua"
+//#define SCRIPT_FILENAME  "rovernet.lua"
 #define SCRIPT_FUNC_NAME "update_network"
 
 
@@ -187,7 +187,7 @@ bool roverNet::init()
 
 
 	// load rovernet script
-	printf("[rovernet]  loading '%s'\n", SCRIPT_FILENAME);
+	printf("[rovernet]  loading '%s' \n", SCRIPT_FILENAME);
 	const int res = luaL_dofile(L, SCRIPT_FILENAME);
 
 	if( res == 1 ) 
