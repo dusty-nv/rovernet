@@ -62,3 +62,6 @@ foreach(luaScript ${luaScripts})
 	configure_file(${luaScript} ${PROJECT_BINARY_DIR} COPYONLY)
 endforeach()
 
+add_subdirectory(tools)
+
+
