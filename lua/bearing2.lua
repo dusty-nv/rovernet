@@ -3,8 +3,8 @@
 require 'torch'
 require 'cutorch'
 require 'nn'
-require 'cunn'
-require 'image'
+--require 'cunn'
+--require 'image'
 
 
 --
