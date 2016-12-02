@@ -31,6 +31,7 @@ set(
 	-O3 -gencode arch=compute_53,code=sm_53
 )
 
+set(PROJECT_OUTPUT_DIR  ${PROJECT_BINARY_DIR})
 
 # build rovernet C/C++ interface
 include_directories(${PROJECT_BINARY_DIR}/torch/include ${PROJECT_BINARY_DIR}/torch/include/TH)
